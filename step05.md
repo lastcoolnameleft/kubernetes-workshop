@@ -62,7 +62,7 @@ At this point the images are in ACR, but the k8 cluster will need credentials to
 
 ### Create a k8 docker-repository secret to enable read-only access to ACR
 ```
-kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=<ContributorAppId> --docker-password=my-acr-password --docker-email=a@b.com
+kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=<service-principal-app-id> --docker-password=<my-acr-password> --docker-email=<your-email>
 ```
 
 ### Create k8s-demo-app.yml 
