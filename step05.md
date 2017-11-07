@@ -68,7 +68,7 @@ kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azure
 ### Create k8s-demo-app.yml 
 Make the changes to point to your ACR instance
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/k8s-demo-app.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/k8s-demo-app.yaml
 
 ```
 apiVersion: v1
@@ -149,7 +149,7 @@ Update the image references in the k8-demo-app.yml file to reference your ACR en
 
 Deploy the application using the kubectl create command:
 ```
-wget https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/k8s-demo-app.yaml
+wget https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/k8s-demo-app.yaml
 sed "s/myacr.azurecr.io/$ACR_NAME.azurecr.io/g" < k8s-demo-app.yaml > k8s-demo-app-update.yaml
 kubectl create -f ./k8s-demo-app-update.yaml
 ```
