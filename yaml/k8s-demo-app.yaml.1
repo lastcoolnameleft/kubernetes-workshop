@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: multi-container-demo
+  labels:
+    name: multi-container-demo
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: multi-container-demo
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: multi-container-demo
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: multi-container-demo
+    spec:
+      containers:
+        - name: web
+          image: myacr.azurecr.io/service-a
+          env:
+            - 
+              name: LISTENPORT
+              value: "8080"
+            -  
+              name: BACKEND_HOSTPORT
+              value: 'localhost:80'
+            -  
+              name: REDIS_HOST
+              value: localhost
+          ports:
+            - containerPort: 8080
+        - name: api
+          image: myacr.azurecr.io/service-b
+          ports:
+            - containerPort: 80
+        - name: mycache
+          image: redis
+          ports:
+            - containerPort: 6379
+      imagePullSecrets:
+        - name: acr-reader

@@ -14,7 +14,7 @@ Kubernetes uses the concept of Pods as a logical abstract to collect containers 
 
 #### Kubernetes executes containers in `Pods`. A pod containing a simple Hello World container can be specified in YAML as follows:
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/hello-world.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/hello-world.yaml
 
 ```
 apiVersion: v1
@@ -31,7 +31,7 @@ spec:  # specification of the pod's contents
 
 #### This pod can be created using the create command: 
 ```
-kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/hello-world.yaml
+kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/hello-world.yaml
 ```
 
 The results should look like this
@@ -62,7 +62,7 @@ pod "hello-world" deleted
 
 #### Let us now start a new pod with two containers. For example, the following configuration file creates two containers: a redis key-value store image, and a nginx frontend image.
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/pod-sample.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/pod-sample.yaml
 
 ```
 apiVersion: v1
@@ -86,7 +86,7 @@ spec:
 Create the the pod:
 
 ```
-kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/pod-sample.yaml
+kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample.yaml
 ```
 
 ### Placing Pods on Various Kubernetes Nodes:
@@ -107,7 +107,7 @@ kubectl label nodes kubernetes-foo-node-1.c.a disktype=ssd
 
 #### You can then specify the label in your pod config file as a nodeSelector section
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/pod-sample-2.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/pod-sample-2.yaml
 
 ```
 apiVersion: v1
@@ -127,7 +127,7 @@ spec:
 
 Create the pod
 ```
-kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/pod-sample-2.yaml
+kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample-2.yaml
 ```
 
 ```
@@ -151,7 +151,7 @@ For example, your pods get re-created on a node after disruptive maintenance suc
 
 #### Create an example of Replication Set and Deployment config. It runs 3 copies of the nginx web server.
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/nginx-deployment.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/nginx-deployment.yaml
 
 ```
 apiVersion: apps/v1beta1
@@ -176,7 +176,7 @@ spec:
 
 #### Run the new pod
 ```
-kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/nginx-deployment.yaml
+kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/nginx-deployment.yaml
 ```
 
 The output should look like this
@@ -240,7 +240,7 @@ This example demonstrates the usage of Kubernetes to perform a rolling update fo
 
 #### In the previous deployment, we used nginx:1.7.9.  Now we want to upgrade to 1.8
 
-https://github.com/lastcoolnameleft/demos/blob/master/k8s-lab/deployment-nginx-update.yaml
+https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/deployment-nginx-update.yaml
 
 ```
 cat deployment-nginx-update.yaml
@@ -264,7 +264,7 @@ spec:
 
 #### To update to container image to ngnix 1.9.1, you can use kubectl rolling-update --image to specify the new image:
 ```
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/demos/master/k8s-lab/deployment-nginx-update.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/deployment-nginx-update.yaml
 ```
 
 The output should look like this
