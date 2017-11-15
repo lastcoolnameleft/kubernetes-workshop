@@ -3,6 +3,8 @@
 
 In the previous step the image for ngnix was pulled from a public repository. For many customers they want to only deploy images from internal (controlled) private registries.
 
+* NOTE:  This lab assumes you have created the containers from the [Container Lab step 6](https://github.com/lastcoolnameleft/workshops/blob/master/containers/step06.md) *
+
 ### Create ACR Registry
 > Note: ACR names are globally scoped so you can check the name of a registry before trying to create it
 ```
