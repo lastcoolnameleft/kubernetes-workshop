@@ -1,0 +1,53 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-azure-disk
+spec:
+  selector:
+    app: test-azure-disk
+  ports:
+  - name: web
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: test-azure-disk
+  name: test-azure-disk
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test-azure-disk
+      name: test-azure-disk
+    spec:
+      containers:
+      - name: busybox-writer
+        image: busybox
+        command:
+        - sh
+        - -c
+        - "while true; do sleep 1; echo $(date +%Y-%m-%d:%H:%M:%S) >> /test-azure-disk/index.html; done"
+        volumeMounts:
+        - mountPath: /test-azure-disk
+          name: volume-azuredisk
+      - name: busybox-web
+        image: busybox
+        command:
+        - sh
+        - -c
+        - "httpd -p 80 -f -v -h /test-azure-disk"
+        volumeMounts:
+        - mountPath: /test-azure-disk
+          name: volume-azuredisk
+      volumes:
+      - azureDisk:
+          diskURI: VHD_URL
+          diskName: KubeTestDisk0
+        name: volume-azuredisk
