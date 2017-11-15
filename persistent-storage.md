@@ -18,7 +18,10 @@ In this exercise, we will:
 
 #### Create the Storage Class
 
-See https://kubernetes.io/docs/concepts/storage/persistent-volumes/#new-azure-disk-storage-class-starting-from-v172 for more details
+The Storage Class is how Kubernetes knows how to request storage from the underlying infrastructure.  In this case, we are creating a storage class for our cluster to use Azure Managed Disks using LRS redundancy.
+
+Additional details:
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/#new-azure-disk-storage-class-starting-from-v172
 
 ```
 kubectl apply -f https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/storage/azure-disk-managed-pvc/storage-class.yaml?raw=1
@@ -28,7 +31,10 @@ kubectl get storageclass
 
 ####  Create the Persistent Volume Claim for that Storage Class
 
-See https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims for more details
+Persistent Volumes is how we persist data (via Volumes) that we want to exist beyond the lifespand of a Pod.  A Persistent Volume Claim is how we request Persistent Volumes from the underlying infrastructure.
+
+Additional details:
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
 
 ```
 kubectl apply -f https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/storage/azure-disk-managed-pvc/pvc.yaml?raw=1
@@ -41,12 +47,11 @@ kubectl get pvc
 
 See https://kubernetes.io/docs/concepts/storage/persistent-volumes/#claims-as-volumes for more details
 
-In our case, we are using a Deployment instead of a Pod because we want to showcase the pod migrating to a new node and the PVC following the new Pod.
+We will now create a Deployment because we want to showcase creating a new Pod that writes to the volume, delete that Pod, watch the ReplicaSet re-create the pod on a new node and then watch the Volume mounted inside the new Pod.
 
-The deployment has a Pod with 2 containers (backend-writer and frontend-webserver) and Service that exposes a public endpoint.
+The Deployment has a Pod with 2 containers (backend-writer and frontend-webserver) and Service that exposes a public endpoint.
 
 The backend writer container writes a new line to a file in the Persistent Volume every second with the date/time + the Pod's hostname.  The frontend webserver container reads that file and serves it via Apache.
-
 
 ```
 kubectl apply -f https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/storage/azure-disk-managed-pvc/deployment.yaml?raw=1
