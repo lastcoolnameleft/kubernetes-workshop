@@ -1,10 +1,12 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
-## Persist storage on Azure
+## Persist storage on Azure with Managed Disks
 
-This tutorial will cover different ways to persist data inside a Kubernetes cluster in Azure.
+[Managed disks](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/managed-disks-overview) are the recommended way to provision disks inside Azure.  In this walkthrough, we will use Managed Disks to persist data inside Pods
 
 Typically in Kubernetes, you use a Persistent Volume Claim (PVC) to request a data disk and then create a Persistent Volume (PV) from the PVC to mount a the container.
+
+One key difference between managing via Azure Files and Azure Managed Disks is that with Azure Files, you can mount to multiple VM's simultaneously.  This comes at a sacrifice of IO throughput.
 
 ### Using an managed disk with Persistent Volume Claim
 
@@ -103,7 +105,7 @@ In this step, we've created a Storage Class, Persistent Volume Claim, and a Depl
 
 ## Acknowledgments
 
-This workshop is inspired by these two articles:
+This walkthrough was inspired by these articles:
 
 https://blogs.technet.microsoft.com/livedevopsinjapan/2017/05/16/azure-disk-tips-for-kubernetes/
 
