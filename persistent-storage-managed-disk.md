@@ -73,7 +73,7 @@ Once the service is verified to be up, reverse the contents of the file and only
 
 *Run this command in a separate window to watch the volume migrate to a different host.*
 ```
-watch "curl $IP | tail -r | head -20"
+watch "curl -s $IP | tail -r | head -20"
 ```
 
 
@@ -89,7 +89,7 @@ NODE=`kubectl get pods -l app=azure-managed-hdd -o json | jq '.items[0].spec.nod
 kubectl cordon $NODE
 
 POD_NAME=`kubectl get pods -l app=azure-managed-hdd -o json | jq '.items[0].metadata.name' -r`
-kubectl delete $POD_NAME
+kubectl delete po/$POD_NAME
 ```
 
 Now we should see the pod start up on a new node.  Go back to your curl window to watch the service become unavailable and then available again with the writes to a new node.
