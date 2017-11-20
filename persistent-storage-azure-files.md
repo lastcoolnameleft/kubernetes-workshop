@@ -2,7 +2,7 @@
 
 ## Persist storage on Azure with Azure Files
 
-[Azure Files](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-introduction) are a way to manage file shares that are accessible via the industry standard Server Message Block (SMB) protocol.  In this walkthrough, we will use Azure Files to persist data inside Pods.
+[Azure Files](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-introduction) are a way to manage file shares that are accessible via the Server Message Block (SMB) protocol.  In this walkthrough, we will use Azure Files to persist data inside Pods.
 
 Typically in Kubernetes, you use a Persistent Volume Claim (PVC) to request a data disk and then create a Persistent Volume (PV) from the PVC to mount a the container.
 
