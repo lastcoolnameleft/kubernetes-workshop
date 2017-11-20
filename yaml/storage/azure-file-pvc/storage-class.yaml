@@ -4,6 +4,4 @@ metadata:
   name: azure-file
 provisioner: kubernetes.io/azure-file
 parameters:
-  skuName: Standard_LRS
-  location: eastus
   storageAccount: tmfaksstorage
