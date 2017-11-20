@@ -33,12 +33,9 @@ STORAGE_ACCOUNT=<STORAGE ACCOUNT NAME TO CREATE>
 RESOURCE_GROUP=<RESOURCE GROUP VM's ARE IN.  USUALLY DIFFERENT THAN RG ACS SERVICE IS IN>
 
 # If you do not have a Storage Account already, create one in the same Resource Group as your VM's
-az storage account create -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP -l $REGION --sku Premium_LRS
+az storage account create -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP -l $REGION --kind Storage --sku Standard_LRS
 CONN_STRING=$(az storage account show-connection-string -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP --query 'connectionString' -o tsv)
- if [[ $CONN_STRING == "" ]]; then  
-     echo "Couldn't retrieve the connection string."
- fi
-az storage share create --name ${STORAGE_ACCOUNT}shr --quota 2048 --connection-string $CONN_STRING > /dev/null
+az storage share create --name ${STORAGE_ACCOUNT}shr --quota 2048 --connection-string $CONN_STRING
 # End of creating new Storage Account
 
 
