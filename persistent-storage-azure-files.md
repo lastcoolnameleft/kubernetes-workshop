@@ -1,5 +1,7 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
+*NOTE: Tested on AKS, but experienced problems with ACS due to https://github.com/kubernetes/kubernetes/pull/53172*
+
 ## Persist storage on Azure with Azure Files
 
 [Azure Files](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-introduction) are a way to manage file shares that are accessible via the Server Message Block (SMB) protocol.  In this walkthrough, we will use Azure Files to persist data inside Pods.
@@ -84,7 +86,7 @@ kubectl get pod,deploy,service
 It may take ~3 minutes for the Azure Load Balancer + Public IP to resolve
 
 ```
-IP=`kubectl get svc/azure-managed-hdd -o json  | jq '.status.loadBalancer.ingress[0].ip' -r`
+IP=`kubectl get svc/azure-volume-file -o json  | jq '.status.loadBalancer.ingress[0].ip' -r`
 curl $IP 
 ```
 
