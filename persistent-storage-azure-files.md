@@ -36,10 +36,6 @@ RESOURCE_GROUP=<RESOURCE GROUP VM's ARE IN.  USUALLY DIFFERENT THAN RG ACS SERVI
 
 # If you do not have a Storage Account already, create one in the same Resource Group as your VM's
 az storage account create -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP -l $REGION --kind Storage --sku Standard_LRS
-CONN_STRING=$(az storage account show-connection-string -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP --query 'connectionString' -o tsv)
-az storage share create --name ${STORAGE_ACCOUNT}shr --quota 2048 --connection-string $CONN_STRING
-# End of creating new Storage Account
-
 
 wget  https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/storage-class.yaml 
 
