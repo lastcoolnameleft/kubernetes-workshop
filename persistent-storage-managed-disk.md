@@ -14,7 +14,7 @@ In this exercise, we will:
 * Create the Storage Class
 * Create the Persistent Volume Claim for that Storage Class
 * Create the Deployment with 1 Pod using 2 containers that share the PVC
-* [Cordon](https://kubernetes.io/docs/user-guide/kubectl/v1.7/#cordon) the node the pods are running
+* [Cordon](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cordon) the node the pods are running
 * Kill the Pod and watch the Node started on a new node and the PV migrate to the new node
 
 
