@@ -1,4 +1,5 @@
 # Containers Orchestrator hands-on lab with Kubernetes
+
 ## Create Azure Container Service Repository (ACR)
 
 In the previous step the image for ngnix was pulled from a public repository. For many customers they want to only deploy images from internal (controlled) private registries.
@@ -6,9 +7,11 @@ In the previous step the image for ngnix was pulled from a public repository. Fo
 * NOTE:  This lab assumes you have created the containers from the [Container Lab step 6](https://github.com/lastcoolnameleft/workshops/blob/master/containers/step06.md) *
 
 ### Create ACR Registry
+
 > Note: ACR names are globally scoped so you can check the name of a registry before trying to create it
-```
-ACR_NAME=myacr
+
+```shell
+ACR_NAME=myacr${USER}
 az acr check-name --name $ACR_NAME
 ```
 
@@ -16,7 +19,7 @@ The minimal parameters to create a ACR are a name, resource group and location. 
 
 > Note: the command will return the resource id for the registry. That id will need to be used in subsequent steps if you want to create service principals that are scoped to this registry instance.
 
-```
+```shell
 az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --location eastus --sku Managed_Standard
 ```
 
@@ -26,7 +29,7 @@ Create a two service principals, one with read only and one with read/write acce
 > 1. The command will return an application id for each service principal. You'll need that id in subsequent steps.
 > 1. You should consider using the --scope property to qualify the use of the service principal a resource group or registry
 
-```
+```shell
 az ad sp create-for-rbac --name my-acr-reader --role Reader --password my-acr-password
 az ad sp create-for-rbac --name my-acr-contributor  --role Contributor --password my-acr-password
 ```
@@ -37,7 +40,7 @@ az ad sp create-for-rbac --name my-acr-contributor  --role Contributor --passwor
 
 List the local docker images. You should see the images built in the initial steps when deploying the application locally.
 
-```
+```shell
 docker images
 ```
 
@@ -55,7 +58,8 @@ docker login -u <ContributorAppId>  -p my-acr-password $ACR_NAME.azurecr.io
 ```
 
 ### Push the images
-```
+
+```shell
 docker push $ACR_NAME.azurecr.io/service-a
 docker push $ACR_NAME.azurecr.io/service-b
 ```
@@ -63,11 +67,13 @@ docker push $ACR_NAME.azurecr.io/service-b
 At this point the images are in ACR, but the k8 cluster will need credentials to be able to pull and deploy the images
 
 ### Create a k8 docker-repository secret to enable read-only access to ACR
-```
+
+```shell
 kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=<service-principal-app-id> --docker-password=<my-acr-password> --docker-email=<your-email>
 ```
 
 ### Create k8s-demo-app.yml 
+
 Make the changes to point to your ACR instance
 
 https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/k8s-demo-app.yaml
@@ -137,7 +143,8 @@ Review the contents of the k8-demo-app.yml file. It contains the objects to be c
     - Containers cannot listen on the same port
 
 Update the image references in the k8-demo-app.yml file to reference your ACR endpoint
-```
+
+```shell
     spec:
       containers:
         - name: web
@@ -146,18 +153,20 @@ Update the image references in the k8-demo-app.yml file to reference your ACR en
         - name: api
           image: <myk8acr-microsoft.azurecr.io>/service-b
           ...
-        - name: mycache  
+        - name: mycache
 ```
 
 Deploy the application using the kubectl create command:
-```
+
+```shell
 wget https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/k8s-demo-app.yaml
 sed "s/myacr.azurecr.io/$ACR_NAME.azurecr.io/g" < k8s-demo-app.yaml > k8s-demo-app-update.yaml
 kubectl create -f ./k8s-demo-app-update.yaml
 ```
 
 If you run `kubectl get pods,svc,deploy`, you should see something like:
-```
+
+```shell
 NAME                                      READY     STATUS              RESTARTS   AGE
 po/multi-container-demo-604940585-1c7wn   0/3       ContainerCreating   0          59s
 po/nginx-2371676037-6b718                 1/1       Running             0          39m
