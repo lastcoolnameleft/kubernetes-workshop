@@ -2,15 +2,14 @@
 
 ## Create Azure Container Service Repository (ACR)
 
-In the previous step the image for ngnix was pulled from a public repository. For many customers they want to only deploy images from internal (controlled) private registries.
-
-* NOTE:  This lab assumes you have created the containers from the [Container Lab step 6](https://github.com/lastcoolnameleft/workshops/blob/master/containers/step06.md) *
+In the previous step the image for ngnix was pulled from a public repository. For many customers they want to only deploy images from internal (controlled) private registries.  In this session, we will download the nginx image and upload it to ACR
 
 ### Create ACR Registry
 
 > Note: ACR names are globally scoped so you can check the name of a registry before trying to create it
 
 ```shell
+RESOURCE_GROUP=my-k8s-cluster-$USER
 ACR_NAME=myacr${USER}
 az acr check-name --name $ACR_NAME
 ```
@@ -20,7 +19,7 @@ The minimal parameters to create a ACR are a name, resource group and location. 
 > Note: the command will return the resource id for the registry. That id will need to be used in subsequent steps if you want to create service principals that are scoped to this registry instance.
 
 ```shell
-az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --location eastus --sku Managed_Standard
+az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --location eastus --sku Standard
 ```
 
 Create a two service principals, one with read only and one with read/write access.
@@ -30,38 +29,42 @@ Create a two service principals, one with read only and one with read/write acce
 > 1. You should consider using the --scope property to qualify the use of the service principal a resource group or registry
 
 ```shell
-az ad sp create-for-rbac --name my-acr-reader --role Reader --password my-acr-password
-az ad sp create-for-rbac --name my-acr-contributor  --role Contributor --password my-acr-password
+ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query id --output tsv)
+READER_SP_NAME=my-acr-reader-$USER
+READER_SP_PASSWD=$(az ad sp create-for-rbac --name $READER_SP_NAME --scopes $ACR_REGISTRY_ID --role reader --query password --output tsv)
+READER_SP_APP_ID=$(az ad sp show --id http://$READER_SP_NAME --query appId --output tsv)
+
+CONTRIBUTOR_SP_NAME=my-acr-contributor-$USER
+CONTRIBUTOR_SP_PASSWD=$(az ad sp create-for-rbac --name $CONTRIBUTOR_SP_NAME --scopes $ACR_REGISTRY_ID --role contributor --query password --output tsv)
+CONTRIBUTOR_SP_APP_ID=$(az ad sp show --id http://$CONTRIBUTOR_SP_NAME --query appId --output tsv)
 ```
 
 ### Push demo app images to ACR
 
-*NOTE: This needs to be done on the same machine you built your docker images*
-
 List the local docker images. You should see the images built in the initial steps when deploying the application locally.
 
 ```shell
-docker images
+docker pull hello-world:latest
+docker images hello-world:latest
 ```
 
 Tag the images for service-a and service-b to associate them with you private ACR instance.
 > Note that you must provide your ACR registry endpoint
 
-```
-docker tag service-a:latest $ACR_NAME.azurecr.io/service-a:latest
-docker tag service-b:latest $ACR_NAME.azurecr.io/service-b:latest
+```shell
+docker tag hello-world:latest $ACR_NAME.azurecr.io/my-hello-world:latest
 ```
 
 Using the Contributor Service Principal, log into the ACR. The login command for a remote registry has the form: 
-```
-docker login -u <ContributorAppId>  -p my-acr-password $ACR_NAME.azurecr.io
+
+```shell
+docker login -u $CONTRIBUTOR_SP_APP_ID -p $CONTRIBUTOR_SP_PASSWD $ACR_NAME.azurecr.io
 ```
 
 ### Push the images
 
 ```shell
-docker push $ACR_NAME.azurecr.io/service-a
-docker push $ACR_NAME.azurecr.io/service-b
+docker push $ACR_NAME.azurecr.io/my-hello-world
 ```
 
 At this point the images are in ACR, but the k8 cluster will need credentials to be able to pull and deploy the images
@@ -69,7 +72,7 @@ At this point the images are in ACR, but the k8 cluster will need credentials to
 ### Create a k8 docker-repository secret to enable read-only access to ACR
 
 ```shell
-kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=<service-principal-app-id> --docker-password=<my-acr-password> --docker-email=<your-email>
+kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=$CONTRIBUTOR_SP_APP_ID --docker-password=$CONTRIBUTOR_SP_PASSWD --docker-email=me@email.com
 ```
 
 ### Create k8s-demo-app.yml 
@@ -78,7 +81,7 @@ Make the changes to point to your ACR instance
 
 https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/k8s-demo-app.yaml
 
-```
+```yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -144,7 +147,7 @@ Review the contents of the k8-demo-app.yml file. It contains the objects to be c
 
 Update the image references in the k8-demo-app.yml file to reference your ACR endpoint
 
-```shell
+```yaml
     spec:
       containers:
         - name: web
@@ -186,17 +189,19 @@ deploy/nginx                  1         1         1            1           39m
 deploy/nginx-deployment       2         2         2            2           42m
 ```
 
-## Lab Navigation
-1. [Lab Overview](./index.md)
-1. [Kubernetes Installation on Azure](./step01.md)
-1. [Hello-world on Kubernetes](./step02.md)
-1. [Experimenting with Kubernetes Features](./step03.md)
-    1. Placement
-    1. Reconciliation
-    1. Rolling Updates
-1. [Deploying a Pod and Service from a public repository](./step04.md)
-1. [Create Azure Container Service Repository (ACR)](./step05.md) *<-- You are here*
-1. [Enable OMS monitoring of containers](./step06.md)
-1. [Create and deploy into Kubernetes Namspaces](./step07.md)
+## Cleanup
 
-[Back to Index](../../index.md)
+```shell
+az ad sp delete --id=$READER_SP_APP_ID
+az ad sp delete --id=$CONTRIBUTOR_SP_APP_ID
+```
+
+## Next Steps
+
+1. [Lab Overview](README.md)
+1. [Create AKS Cluster](create-aks-cluster.md)
+1. [Hello-world on Kubernetes](k8s-hello-world.md)
+1. [Experimenting with Kubernetes Features](k8s-features.md)
+1. [Create Azure Container Service Repository (ACR)](using-acr.md)
+1. [Enable OMS monitoring of containers](oms.md)
+1. [Create and deploy into Kubernetes Namspaces](k8s-namespaces.md)

@@ -34,7 +34,9 @@ service "my-nginx" exposed
 
 Kubernetes will ensure that your application keeps running, by automatically restarting containers that fail, spreading containers across nodes, and recreating containers on new nodes when nodes fail.
 
-### To find the public IP address assigned to your application
+### Get the Public IP Address
+
+When you first try to get the Service IP, the External Public IP will not show up yet.  This is because it is still being provisioned from Azure.
 
 ```shell
 kubectl get service my-nginx
@@ -43,11 +45,65 @@ kubectl get service my-nginx
 Results:
 
 ```shell
-NAME       TYPE           CLUSTER-IP   EXTERNAL-IP   PORT(S)        AGE
-my-nginx   LoadBalancer   10.0.13.23   <pending>     80:30872/TCP   17s
+NAME       TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+my-nginx   LoadBalancer   10.0.206.82   <pending>     80:32226/TCP   2m
 ```
 
-### To kill the application and delete its containers and public IP address
+Keep running the `kubectl get service` command, until the LoadBalancer IP is datafilled:
+
+```shell
+SERVICE_IP='null'
+until [ $SERVICE_IP != 'null' ]; do SERVICE_IP=$(kubectl get service my-nginx -o json | jq '.status.loadBalancer.ingress[0].ip' -r || unset SERVICE_IP) || sleep 5; done
+echo $SERVICE_IP
+kubectl get service my-nginx
+```
+
+Results:
+
+```output
+NAME       TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+my-nginx   LoadBalancer   10.0.206.82   52.151.63.4   80:32226/TCP   3m
+```
+
+Once the external-ip is available, we can proceed:
+
+```shell
+curl $SERVICE_IP
+```
+
+Results:
+
+```shell
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+### Cleanup
+
+To kill the application and delete its containers and public IP address
 
 ```shell
 kubectl delete deployment,service my-nginx
@@ -66,7 +122,6 @@ service "my-nginx" deleted
 1. [Create AKS Cluster](create-aks-cluster.md)
 1. [Hello-world on Kubernetes](k8s-hello-world.md)
 1. [Experimenting with Kubernetes Features](k8s-features.md)
-1. [Deploying a Pod and Service from a public repository](./step04.md)
-1. [Create Azure Container Service Repository (ACR)](./step05.md)
-1. [Enable OMS monitoring of containers](./step06.md)
-1. [Create and deploy into Kubernetes Namspaces](./step07.md)
+1. [Create Azure Container Service Repository (ACR)](using-acr.md)
+1. [Enable OMS monitoring of containers](oms.md)
+1. [Create and deploy into Kubernetes Namspaces](k8s-namespaces.md)
