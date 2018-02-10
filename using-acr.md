@@ -10,8 +10,19 @@ In the previous step the image for ngnix was pulled from a public repository. Fo
 
 ```shell
 RESOURCE_GROUP=my-k8s-cluster-$USER
-ACR_NAME=myacr${USER}
+ACR_NAME=myacr${USER}${RANDOM}
+echo ACR_NAME = $ACR_NAME
 az acr check-name --name $ACR_NAME
+```
+
+Results:
+
+```shell
+{
+  "message": null,
+  "nameAvailable": true,
+  "reason": null
+}
 ```
 
 The minimal parameters to create a ACR are a name, resource group and location. With these parameters a storage account will be created and administrator access will not be created.
@@ -20,6 +31,7 @@ The minimal parameters to create a ACR are a name, resource group and location. 
 
 ```shell
 az acr create --name $ACR_NAME --resource-group $RESOURCE_GROUP --location eastus --sku Standard
+ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query id --output tsv)
 ```
 
 Create a two service principals, one with read only and one with read/write access.
@@ -28,14 +40,21 @@ Create a two service principals, one with read only and one with read/write acce
 > 1. The command will return an application id for each service principal. You'll need that id in subsequent steps.
 > 1. You should consider using the --scope property to qualify the use of the service principal a resource group or registry
 
+Create a reader Service Principal
+
 ```shell
-ACR_REGISTRY_ID=$(az acr show --name $ACR_NAME --query id --output tsv)
 READER_SP_NAME=my-acr-reader-$USER
 READER_SP_PASSWD=$(az ad sp create-for-rbac --name $READER_SP_NAME --scopes $ACR_REGISTRY_ID --role reader --query password --output tsv)
+echo Reader password = $READER_SP_PASSWD
 READER_SP_APP_ID=$(az ad sp show --id http://$READER_SP_NAME --query appId --output tsv)
+```
 
+Create a contributor Service Principal
+
+```shell
 CONTRIBUTOR_SP_NAME=my-acr-contributor-$USER
 CONTRIBUTOR_SP_PASSWD=$(az ad sp create-for-rbac --name $CONTRIBUTOR_SP_NAME --scopes $ACR_REGISTRY_ID --role contributor --query password --output tsv)
+echo Contributor password = $CONTRIBUTOR_SP_PASSWD
 CONTRIBUTOR_SP_APP_ID=$(az ad sp show --id http://$CONTRIBUTOR_SP_NAME --query appId --output tsv)
 ```
 
@@ -44,15 +63,15 @@ CONTRIBUTOR_SP_APP_ID=$(az ad sp show --id http://$CONTRIBUTOR_SP_NAME --query a
 List the local docker images. You should see the images built in the initial steps when deploying the application locally.
 
 ```shell
-docker pull hello-world:latest
-docker images hello-world:latest
+docker pull nginx:latest
+docker images nginx:latest
 ```
 
 Tag the images for service-a and service-b to associate them with you private ACR instance.
 > Note that you must provide your ACR registry endpoint
 
 ```shell
-docker tag hello-world:latest $ACR_NAME.azurecr.io/my-hello-world:latest
+docker tag nginx:latest $ACR_NAME.azurecr.io/workshop/my-nginx:latest
 ```
 
 Using the Contributor Service Principal, log into the ACR. The login command for a remote registry has the form: 
@@ -61,139 +80,61 @@ Using the Contributor Service Principal, log into the ACR. The login command for
 docker login -u $CONTRIBUTOR_SP_APP_ID -p $CONTRIBUTOR_SP_PASSWD $ACR_NAME.azurecr.io
 ```
 
-### Push the images
+Results:
 
 ```shell
-docker push $ACR_NAME.azurecr.io/my-hello-world
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Login Succeeded
 ```
 
-At this point the images are in ACR, but the k8 cluster will need credentials to be able to pull and deploy the images
-
-### Create a k8 docker-repository secret to enable read-only access to ACR
+### Push the image to the ACR
 
 ```shell
-kubectl create secret docker-registry acr-reader --docker-server=$ACR_NAME.azurecr.io --docker-username=$CONTRIBUTOR_SP_APP_ID --docker-password=$CONTRIBUTOR_SP_PASSWD --docker-email=me@email.com
+docker push $ACR_NAME.azurecr.io/workshop/my-nginx
 ```
 
-### Create k8s-demo-app.yml 
-
-Make the changes to point to your ACR instance
-
-https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/k8s-demo-app.yaml
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: multi-container-demo
-  labels:
-    name: multi-container-demo
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 8080
-      protocol: TCP
-  selector:
-    app: multi-container-demo
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: multi-container-demo
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: multi-container-demo
-    spec:
-      containers:
-        - name: web
-          image: myacr.azurecr.io/service-a
-          env:
-            - 
-              name: LISTENPORT
-              value: "8080"
-            -  
-              name: BACKEND_HOSTPORT
-              value: 'localhost:80'
-            -  
-              name: REDIS_HOST
-              value: localhost
-          ports:
-            - containerPort: 8080
-        - name: api
-          image: myacr.azurecr.io/service-b
-          ports:
-            - containerPort: 80
-        - name: mycache
-          image: redis
-          ports:
-            - containerPort: 6379
-      imagePullSecrets:
-        - name: acr-reader
-```
-
-
-### Deploy the application to the k8 cluster
-
-Review the contents of the k8-demo-app.yml file. It contains the objects to be created on the k8 cluster.
- - Note that multiple objects can be included within the same file
- - Note the environment variables that are used to configure endpoints. 
- - Since these containers are being deployed to a Pod:
-    - The containers will communicate via localhost. 
-    - Containers cannot listen on the same port
-
-Update the image references in the k8-demo-app.yml file to reference your ACR endpoint
-
-```yaml
-    spec:
-      containers:
-        - name: web
-          image: <myk8acr-microsoft.azurecr.io>/service-a
-          ...
-        - name: api
-          image: <myk8acr-microsoft.azurecr.io>/service-b
-          ...
-        - name: mycache
-```
-
-Deploy the application using the kubectl create command:
+### Verify we can pull image
 
 ```shell
-wget https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/k8s-demo-app.yaml
-sed "s/myacr.azurecr.io/$ACR_NAME.azurecr.io/g" < k8s-demo-app.yaml > k8s-demo-app-update.yaml
-kubectl create -f ./k8s-demo-app-update.yaml
+docker pull $ACR_NAME.azurecr.io/workshop/my-nginx
 ```
 
-If you run `kubectl get pods,svc,deploy`, you should see something like:
+### Deploy the ACR credentials to K8S
+
+At this point the images are in ACR, but the cluster will need credentials to be able to pull and deploy the images
 
 ```shell
-NAME                                      READY     STATUS              RESTARTS   AGE
-po/multi-container-demo-604940585-1c7wn   0/3       ContainerCreating   0          59s
-po/nginx-2371676037-6b718                 1/1       Running             0          39m
-po/nginx-deployment-3285060500-1rrrd      1/1       Running             0          40m
-po/nginx-deployment-3285060500-rsm70      1/1       Running             0          40m
-po/nginx2                                 1/1       Running             0          42m
-po/redis-nginx                            2/2       Running             0          43m
+kubectl create secret docker-registry acr-reader --docker-server $ACR_NAME.azurecr.io --docker-username $READER_SP_APP_ID --docker-password $READER_SP_PASSWD --docker-email me@email.com
+```
 
-NAME                       CLUSTER-IP    EXTERNAL-IP     PORT(S)        AGE
-svc/kubernetes             10.0.0.1      <none>          443/TCP        58m
-svc/multi-container-demo   10.0.43.186   <pending>       80:31495/TCP   1m
-svc/nginx                  10.0.245.66   13.65.214.240   80:30577/TCP   39m
+Results:
 
-NAME                          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/multi-container-demo   1         1         1            0           59s
-deploy/nginx                  1         1         1            1           39m
-deploy/nginx-deployment       2         2         2            2           42m
+```shell
+secret "acr-reader" created
+```
+
+## Deploy a Helm chart using the new image
+
+```shell
+helm install --set image.repository=$ACR_NAME.azurecr.io/workshop/my-nginx,image.tag=latest,image.imagePullSecrets=acr-reader ./yaml/acr-test
+```
+
+## Verify setup
+
+```shell
+HELM_RELEASE=$(helm ls -qdr | head -1)
+helm status
+kubectl get all
 ```
 
 ## Cleanup
 
 ```shell
+az acr delete -n $ACR_NAME
 az ad sp delete --id=$READER_SP_APP_ID
 az ad sp delete --id=$CONTRIBUTOR_SP_APP_ID
+kubectl delete secret acr-reader
+helm delete $HELM_RELEASE
 ```
 
 ## Next Steps
