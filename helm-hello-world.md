@@ -19,12 +19,12 @@ Each helm chart deployed will creates a release name.  We will install a MySQL H
 
 ```shell
 helm install --set persistence.storageClass=default stable/mysql
-HELM_RELEASE=$(helm ls -qdr | head -1)
 ```
 
 As it's being deployed, you can view the status through the `helm status` command.
 
 ```shell
+HELM_RELEASE=$(helm ls -qdr | head -1)
 helm status $HELM_RELEASE
 kubectl get all
 ```
