@@ -67,8 +67,7 @@ docker pull nginx:latest
 docker images nginx:latest
 ```
 
-Tag the images for service-a and service-b to associate them with you private ACR instance.
-> Note that you must provide your ACR registry endpoint
+Tag the images for to associate them with you private ACR instance.
 
 ```shell
 docker tag nginx:latest $ACR_NAME.azurecr.io/workshop/my-nginx:latest
