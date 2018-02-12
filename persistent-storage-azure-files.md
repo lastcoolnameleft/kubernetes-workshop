@@ -1,6 +1,6 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
-*NOTE: Tested on AKS, but experienced problems with ACS due to https://github.com/kubernetes/kubernetes/pull/53172*
+> NOTE: Tested on AKS, but experienced problems with ACS due to https://github.com/kubernetes/kubernetes/pull/53172
 
 ## Persist storage on Azure with Azure Files
 
@@ -13,6 +13,7 @@ One key difference between managing via Azure Files and Azure Managed Disks is t
 ### Using an managed disk with Persistent Volume Claim
 
 In this exercise, we will:
+
 * Create the Storage Class
 * Create the Persistent Volume Claim for that Storage Class
 * Create the Deployment with 1 Pod using 2 containers that share the PVC
@@ -28,8 +29,7 @@ The Storage Class is how Kubernetes knows how to request storage from the underl
 Additional details:
 https://kubernetes.io/docs/concepts/storage/persistent-volumes/#azure-file
 
-
-```
+```shell
 REGION=<YOUR K8S CLUSTER REGION>
 STORAGE_ACCOUNT=<STORAGE ACCOUNT NAME TO CREATE>
 RESOURCE_GROUP=<RESOURCE GROUP VM's ARE IN.  USUALLY DIFFERENT THAN RG ACS SERVICE IS IN>
@@ -37,7 +37,7 @@ RESOURCE_GROUP=<RESOURCE GROUP VM's ARE IN.  USUALLY DIFFERENT THAN RG ACS SERVI
 # If you do not have a Storage Account already, create one in the same Resource Group as your VM's
 az storage account create -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP -l $REGION --kind Storage --sku Standard_LRS
 
-wget  https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/storage-class.yaml 
+wget  https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/storage-class.yaml
 
 sed -ie "s/location: eastus/location: $REGION/" storage-class.yaml
 sed -ie "s/storageAccount: tmfaksstorage/storageAccount: $STORAGE_ACCOUNT/" storage-class.yaml
@@ -55,7 +55,7 @@ Persistent Volumes is how we persist data (via Volumes) that we want to exist be
 Additional details:
 https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
 
-```
+```shell
 kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/pvc.yaml
 
 kubectl get pvc
@@ -72,16 +72,15 @@ The Deployment has a Pod with 2 containers (backend-writer and frontend-webserve
 
 The backend writer container writes a new line to a file in the Persistent Volume every second with the date/time + the Pod's hostname.  The frontend webserver container reads that file and serves it via Apache.
 
-```
+```shell
 kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml 
-
 kubectl get pod,deploy,service
 ```
 
 
 It may take ~3 minutes for the Azure Load Balancer + Public IP to resolve
 
-```
+```shell
 IP=`kubectl get svc/azure-volume-file -o json  | jq '.status.loadBalancer.ingress[0].ip' -r`
 curl $IP 
 ```
@@ -89,7 +88,8 @@ curl $IP
 Once the service is verified to be up, reverse the contents of the file and only show the last 20 lines.  
 
 *Run this command in a separate window to watch the volume migrate to a different host.*
-```
+
+```shell
 watch "curl $IP | tail -r | head -20"
 ```
 
@@ -101,19 +101,21 @@ Now that we have verified the service is up and appending to the logs, let's cre
 Azure Files allows us to attach a shared volume to multiple nodes at a time.
 
 First, disable scheduling on the existing node.  This prevents any new pods being started on this host.
-```
+
+```shell
 NODE=`kubectl get pods -l app=azure-volume-file -o json | jq '.items[0].spec.nodeName' -r`
 kubectl cordon $NODE
 ```
 
 Now set the number of replicas for the deployment to 2:
-```
+
+```shell
 kubectl scale deploy/azure-volume-file --replicas=2
 ```
 
 Now we should see a new pod start up on a different node.
 
-```
+```shell
 kubectl get pod
 ```
 
@@ -122,8 +124,6 @@ Go back to your curl window to watch the service write two logs every second, on
 ## Summary
 
 In this step, we've created a Azure File based Storage Class, Persistent Volume Claim, and a Deployment with a Pod with 2 containers using the Persistent Volume.  We verified that one container in the Pod could write to the volume and another container in the Pod could read from it.  We then cordon'ed the node to prevent scheduling on it and set the replicas to 2 which started the pod on a different node and verified that the service was still available and both pods were writing to the same file at the same time.
-
-
 
 ## Acknowledgments
 

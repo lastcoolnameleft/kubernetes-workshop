@@ -5,10 +5,9 @@ Created at Microsoft by Lamia Youseff, [David Read](https://github.com/dave-read
 ## Lab Goals
 
 1. To get a primarily hands-on experience with Docker, Kubernetes and Kubernetes’ main features on Azure.
-1. To set up a Kubernetes deployment in your subscription for future customer-demo purposes. 
-1. To write and run a basic hello-world program on Docker
+1. To set up a Kubernetes deployment in your subscription for future customer-demo purposes.
 
-## Next Steps
+## ToC
 
 1. [Lab Overview](README.md)
 1. [Create AKS Cluster](create-aks-cluster.md)
