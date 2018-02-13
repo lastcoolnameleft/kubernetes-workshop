@@ -73,7 +73,7 @@ Tag the images for to associate them with you private ACR instance.
 docker tag nginx:latest $ACR_NAME.azurecr.io/workshop/my-nginx:latest
 ```
 
-Using the Contributor Service Principal, log into the ACR. The login command for a remote registry has the form: 
+Using the Contributor Service Principal, log into the ACR. The login command for a remote registry has the form:
 
 ```shell
 docker login -u $CONTRIBUTOR_SP_APP_ID -p $CONTRIBUTOR_SP_PASSWD $ACR_NAME.azurecr.io

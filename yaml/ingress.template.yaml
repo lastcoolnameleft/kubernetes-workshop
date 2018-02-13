@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example
+  annotations:
+      kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: alertmanager.prometheus.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: HELM_PROMETHEUS-prometheus-alertmanager
+          servicePort: 80
+  - host: pushgateway.prometheus.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: HELM_PROMETHEUS-prometheus-pushgateway
+          servicePort: 9091
+  - host: server.prometheus.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: HELM_PROMETHEUS-prometheus-server
+          servicePort: 80
+  - host: grafana.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: HELM_GRAFANA-grafana
+          servicePort: 80
+  - host: nginx.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nginx-deployment
+          servicePort: 80

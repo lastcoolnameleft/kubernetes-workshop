@@ -1,6 +1,6 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
-> NOTE: Tested on AKS, but experienced problems with ACS due to https://github.com/kubernetes/kubernetes/pull/53172
+> NOTE: Tested on AKS, but experienced problems with ACS due to <https://github.com/kubernetes/kubernetes/pull/53172>
 
 ## Persist storage on Azure with Azure Files
 
@@ -19,7 +19,7 @@ In this exercise, we will:
 * Create the Deployment with 1 Pod using 2 containers that share the PVC
 * [Cordon](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cordon) the node the pods are running
   * This is to prevent scheduling new Pods on the existing Node
-* Scale the Deployment to 2 replicas 
+* Scale the Deployment to 2 replicas
 * Validate writes are happening to the same file on different VM
 
 #### Create the Storage Class
@@ -27,7 +27,7 @@ In this exercise, we will:
 The Storage Class is how Kubernetes knows how to request storage from the underlying infrastructure.  In this case, we are creating a storage class for our cluster to use Azure Files in our Storage Account.
 
 Additional details:
-https://kubernetes.io/docs/concepts/storage/persistent-volumes/#azure-file
+<https://kubernetes.io/docs/concepts/storage/persistent-volumes/#azure-file>
 
 ```shell
 REGION=<YOUR K8S CLUSTER REGION>
@@ -48,12 +48,12 @@ kubectl apply -f storage-class.yaml
 kubectl get storageclass
 ```
 
-####  Create the Persistent Volume Claim for that Storage Class
+#### Create the Persistent Volume Claim for that Storage Class
 
 Persistent Volumes is how we persist data (via Volumes) that we want to exist beyond the lifespand of a Pod.  A Persistent Volume Claim is how we request Persistent Volumes from the underlying infrastructure.
 
 Additional details:
-https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+<https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims>
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/pvc.yaml
@@ -61,10 +61,9 @@ kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/ma
 kubectl get pvc
 ```
 
-
 #### Create the Deployment with 1 Pod using 2 containers that share the PVC
 
-See https://kubernetes.io/docs/concepts/storage/persistent-volumes/#claims-as-volumes for more details
+See <https://kubernetes.io/docs/concepts/storage/persistent-volumes/#claims-as-volumes> for more details
 
 We will now create a Deployment because we want to showcase creating a new Pod that writes to the volume, delete that Pod, watch the ReplicaSet re-create the pod on a new node and then watch the Volume mounted inside the new Pod.
 
@@ -73,26 +72,24 @@ The Deployment has a Pod with 2 containers (backend-writer and frontend-webserve
 The backend writer container writes a new line to a file in the Persistent Volume every second with the date/time + the Pod's hostname.  The frontend webserver container reads that file and serves it via Apache.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml 
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml
 kubectl get pod,deploy,service
 ```
-
 
 It may take ~3 minutes for the Azure Load Balancer + Public IP to resolve
 
 ```shell
 IP=`kubectl get svc/azure-volume-file -o json  | jq '.status.loadBalancer.ingress[0].ip' -r`
-curl $IP 
+curl $IP
 ```
 
-Once the service is verified to be up, reverse the contents of the file and only show the last 20 lines.  
+Once the service is verified to be up, reverse the contents of the file and only show the last 20 lines.
 
 *Run this command in a separate window to watch the volume migrate to a different host.*
 
 ```shell
 watch "curl $IP | tail -r | head -20"
 ```
-
 
 #### Run a replica on a different node
 
@@ -129,6 +126,6 @@ In this step, we've created a Azure File based Storage Class, Persistent Volume 
 
 This walkthrough was inspired by these articles:
 
-https://blogs.technet.microsoft.com/livedevopsinjapan/2017/05/16/azure-disk-tips-for-kubernetes/
+<https://blogs.technet.microsoft.com/livedevopsinjapan/2017/05/16/azure-disk-tips-for-kubernetes/>
 
-https://github.com/kubernetes/examples/tree/master/staging/volumes/azure_disk/claim/managed-disk/managed-hdd
+<https://github.com/kubernetes/examples/tree/master/staging/volumes/azure_disk/claim/managed-disk/managed-hdd>
