@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+  annotations:
+      kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: alertmanager.prometheus.INGRESS_CONTROLLER_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: PROMETHEUS_RELEASE_NAME-prometheus-alertmanager
+          servicePort: 80
+  - host: pushgateway.prometheus.INGRESS_CONTROLLER_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: PROMETHEUS_RELEASE_NAME-prometheus-pushgateway
+          servicePort: 9091
+  - host: server.prometheus.INGRESS_CONTROLLER_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: PROMETHEUS_RELEASE_NAME-prometheus-server
+          servicePort: 80
+  - host: grafana.INGRESS_CONTROLLER_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: GRAFANA_RELEASE_NAME-grafana
+          servicePort: 80

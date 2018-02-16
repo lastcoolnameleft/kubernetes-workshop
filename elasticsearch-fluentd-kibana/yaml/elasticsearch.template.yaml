@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elasticsearch
+  annotations:
+      kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: elasticsearch.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ELASTICSEARCH_RELEASE_NAME-elasticsearch-client
+          servicePort: 9200
+  - host: kibana.SERVICE_IP.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kibana
+          servicePort: 5601
