@@ -12,6 +12,9 @@ Before installing the ingress resource, we should create the ingress controller,
 INGRESS_CONTROLLER_RELEASE_NAME=${INGRESS_CONTROLLER_RELEASE_NAME=nginx-ingress}
 INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=monitoring}
 helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE stable/nginx-ingress
+# or if using RBAC
+helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE --set rbac.create=true stable/nginx-ingress
+
 ```
 
 ## Validation
