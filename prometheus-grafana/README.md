@@ -35,7 +35,7 @@ cp yaml/ingress.template.yaml yaml/ingress.yaml
 sed -i "s/INGRESS_CONTROLLER_IP/$INGRESS_CONTROLLER_IP/g" yaml/ingress.yaml
 sed -i "s/PROMETHEUS_RELEASE_NAME/$PROMETHEUS_RELEASE_NAME/g" yaml/ingress.yaml
 sed -i "s/GRAFANA_RELEASE_NAME/$GRAFANA_RELEASE_NAME/g" yaml/ingress.yaml
-kubectl apply -f yaml/ingress.yaml
+kubectl apply -f yaml/ingress.yaml -n $INGRESS_CONTROLLER_NAMESPACE
 ```
 
 ## Cleanup
@@ -44,5 +44,5 @@ kubectl apply -f yaml/ingress.yaml
 helm del --purge $PROMETHEUS_RELEASE_NAME
 helm del --purge $PROMETHEUS_INGRESS_RELEASE_NAME
 helm del --purge $GRAFANA_RELEASE_NAME
-kubectl delete -f yaml/ingress.yaml
+kubectl delete -f yaml/ingress.yaml -n $INGRESS_CONTROLLER_NAMESPACE
 ```
