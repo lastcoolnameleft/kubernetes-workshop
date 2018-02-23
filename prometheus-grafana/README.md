@@ -38,6 +38,15 @@ sed -i "s/GRAFANA_RELEASE_NAME/$GRAFANA_RELEASE_NAME/g" yaml/ingress.yaml
 kubectl apply -f yaml/ingress.yaml -n $INGRESS_CONTROLLER_NAMESPACE
 ```
 
+## Validate
+
+```shell
+curl alertmanager.prometheus.$INGRESS_CONTROLLER_IP.xip.io
+curl pushgateway.prometheus.$INGRESS_CONTROLLER_IP.xip.io
+curl server.prometheus.$INGRESS_CONTROLLER_IP.xip.io
+curl grafana.$INGRESS_CONTROLLER_IP.xip.io
+```
+
 ## Cleanup
 
 ```shell
