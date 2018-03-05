@@ -10,7 +10,7 @@ Typically in Kubernetes, you use a Persistent Volume Claim (PVC) to request a da
 
 One key difference between managing via Azure Files and Azure Managed Disks is that with Azure Files, you can mount to multiple VM's simultaneously.  This comes at a sacrifice of I/O throughput.
 
-### Using an managed disk with Persistent Volume Claim
+### Using Persistent Volume Claim with Azure Files
 
 In this exercise, we will:
 
