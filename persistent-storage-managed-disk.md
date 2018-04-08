@@ -12,7 +12,6 @@ One key difference between managing via Azure Files and Azure Managed Disks is t
 
 In this exercise, we will:
 
-* Create the Storage Class
 * Create the Persistent Volume Claim for that Storage Class
 * Create the Deployment with 1 Pod using 2 containers that share the PVC
 * [Cordon](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cordon) the node the pods are running
