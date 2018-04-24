@@ -118,6 +118,14 @@ kubectl get pod
 
 Go back to your curl window to watch the service write two logs every second, once from each host.
 
+## Cleanup
+
+To cleanup, delete the Storage Class and the PVC
+
+```shell
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml
+```
+
 ## Summary
 
 In this step, we've created a Azure File based Storage Class, Persistent Volume Claim, and a Deployment with a Pod with 2 containers using the Persistent Volume.  We verified that one container in the Pod could write to the volume and another container in the Pod could read from it.  We then cordon'ed the node to prevent scheduling on it and set the replicas to 2 which started the pod on a different node and verified that the service was still available and both pods were writing to the same file at the same time.

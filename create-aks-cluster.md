@@ -56,7 +56,7 @@ az aks install-cli
 
 ### Download the k8s cluster configuration (including credentials)
 
-The kubectl application requires configuration data which includes the cluster endpoint and credentails. The credentails are created on the cluster admin server during installation and can be downloaded to your machine using the get-credential subcommand.
+The kubectl application requires configuration data which includes the cluster endpoint and credentails. The credentails are created on the cluster admin server during installation and can be downloaded to your machine to the `$HOME/.kube/config` directory using the get-credential subcommand.
 
 ```shell
 az aks get-credentials --resource-group=$RESOURCE_GROUP --name=$RESOURCE_GROUP
