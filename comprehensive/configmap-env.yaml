@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuard-config-env
+data:
+  CONFIG_SOURCE: yaml
+  FOO: bar

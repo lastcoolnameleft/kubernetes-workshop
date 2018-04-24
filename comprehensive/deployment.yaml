@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kuard
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - name: kuard
+        image: gcr.io/kuar-demo/kuard-amd64:1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: kuard-config-file
+            mountPath: /tmp/kuard-config
+          - name: kuard-secret
+            mountPath: /tmp/kuard-secret
+          - name: kuard-pvc
+            mountPath: /tmp/kuard-pvc
+        env:
+          - name: CONFIG_SOURCE
+            valueFrom:
+              configMapKeyRef:
+                name: kuard-config-env
+                key: CONFIG_SOURCE
+          - name: FOO
+            valueFrom:
+              configMapKeyRef:
+                name: kuard-config-env
+                key: FOO
+      volumes:
+      - name: kuard-config-file
+        configMap:
+          name: kuard-config-file
+      - name: kuard-secret
+        secret:
+          secretName: kuard-secret
+      - name: kuard-pvc
+        persistentVolumeClaim:
+          claimName: kuard

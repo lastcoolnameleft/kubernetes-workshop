@@ -1,0 +1,11 @@
+# Assume using default Storage Class
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kuard
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
