@@ -16,3 +16,7 @@ Created at Microsoft by Lamia Youseff, [David Read](https://github.com/dave-read
 1. [Create Azure Container Service Repository (ACR)](using-acr.md)
 1. [Enable OMS monitoring of containers](oms.md)
 1. [Create and deploy into Kubernetes Namspaces](k8s-namespaces.md)
+
+## Further reading
+
+1. [Designing Distributed Systems by Brendan Burns](https://github.com/brendandburns/designing-distributed-systems-labs)
