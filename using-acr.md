@@ -1,5 +1,9 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
+## Prerequisite
+
+[Create AKS Cluster](create-aks-cluster.md])
+
 ## Create Azure Container Service Repository (ACR)
 
 In the previous step the image for ngnix was pulled from a public repository. For many customers they want to only deploy images from internal (controlled) private registries.  In this session, we will download the nginx image and upload it to ACR
