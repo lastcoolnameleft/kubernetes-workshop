@@ -2,7 +2,7 @@
 
 ## Prerequisite
 
-[Create AKS Cluster](create-aks-cluster.md])
+[Create AKS Cluster](create-aks-cluster.md)
 
 ## Create Azure Container Service Repository (ACR)
 
