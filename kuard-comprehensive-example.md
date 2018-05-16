@@ -41,5 +41,5 @@ kubectl apply -f comprehensive/service.yaml
 ## Cleanup
 
 ```shell
-kubectl delete service/kuard pvc/kuard configmap/kuard-config-env configmap/kuard-config-file secret/kuard-secret
+kubectl delete service/kuard pvc/kuard configmap/kuard-config-env configmap/kuard-config-file secret/kuard-secret deploy/kuard
 ```
