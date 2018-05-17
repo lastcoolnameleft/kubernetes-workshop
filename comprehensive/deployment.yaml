@@ -53,6 +53,16 @@ spec:
               value: Awesome
           initialDelaySeconds: 3
           periodSeconds: 3
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kuard
+            topologyKey: "kubernetes.io/hostname"
       # Volumes created from ConfigMap + Secrets
       volumes:
       - name: kuard-config-file
