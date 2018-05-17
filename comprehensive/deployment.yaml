@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: kuard
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -15,23 +15,45 @@ spec:
         ports:
         - containerPort: 8080
         volumeMounts:
-          - name: kuard-config-file
-            mountPath: /tmp/kuard-config
-          - name: kuard-secret
-            mountPath: /tmp/kuard-secret
-          - name: kuard-pvc
-            mountPath: /tmp/kuard-pvc
+        - name: kuard-config-file
+          mountPath: /tmp/kuard-config
+        - name: kuard-secret
+          mountPath: /tmp/kuard-secret
+#        - name: kuard-pvc
+#          mountPath: /tmp/kuard-pvc
+        # Inject env var from ConfigMap
         env:
-          - name: CONFIG_SOURCE
-            valueFrom:
-              configMapKeyRef:
-                name: kuard-config-env
-                key: CONFIG_SOURCE
-          - name: FOO
-            valueFrom:
-              configMapKeyRef:
-                name: kuard-config-env
-                key: FOO
+        - name: CONFIG_SOURCE
+          valueFrom:
+            configMapKeyRef:
+              name: kuard-config-env
+              key: CONFIG_SOURCE
+        - name: FOO
+          valueFrom:
+            configMapKeyRef:
+              name: kuard-config-env
+              key: FOO
+        # Probe to know if container has completed startup
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+            httpHeaders:
+            - name: X-Custom-Header
+              value: Awesome
+          initialDelaySeconds: 1
+          periodSeconds: 1
+        # Probe to know if container is healthy
+        livenessProbe:
+          httpGet:
+            path: /healthy
+            port: 8080
+            httpHeaders:
+            - name: X-Custom-Header
+              value: Awesome
+          initialDelaySeconds: 3
+          periodSeconds: 3
+      # Volumes created from ConfigMap + Secrets
       volumes:
       - name: kuard-config-file
         configMap:
@@ -39,6 +61,6 @@ spec:
       - name: kuard-secret
         secret:
           secretName: kuard-secret
-      - name: kuard-pvc
-        persistentVolumeClaim:
-          claimName: kuard
+#      - name: kuard-pvc
+#        persistentVolumeClaim:
+#          claimName: kuard
