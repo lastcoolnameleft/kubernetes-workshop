@@ -3,24 +3,43 @@ kind: Deployment
 metadata:
   name: kuard
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
         app: kuard
     spec:
+      # Fix issue where volume is owned by root, but container is run by nobody
+      # https://github.com/kubernetes/kubernetes/issues/2630#issuecomment-375504696
+      initContainers:
+        - name: volume-mount-hack
+          image: busybox
+          command:
+            - sh
+            - -c
+            - 'chmod -R a+rwx /tmp/kuard-pvc'
+          volumeMounts:
+            - name: kuard-pvc
+              mountPath: /tmp/kuard-pvc
+          securityContext:
+            runAsUser: 0
       containers:
       - name: kuard
         image: gcr.io/kuar-demo/kuard-amd64:1
+
+        # Ports to expose from inside the pod
         ports:
         - containerPort: 8080
+
+        # Volumes to mount inside the container
         volumeMounts:
         - name: kuard-config-file
           mountPath: /tmp/kuard-config
         - name: kuard-secret
           mountPath: /tmp/kuard-secret
-#        - name: kuard-pvc
-#          mountPath: /tmp/kuard-pvc
+        - name: kuard-pvc
+          mountPath: /tmp/kuard-pvc
+
         # Inject env var from ConfigMap
         env:
         - name: CONFIG_SOURCE
@@ -33,6 +52,7 @@ spec:
             configMapKeyRef:
               name: kuard-config-env
               key: FOO
+
         # Probe to know if container has completed startup
         readinessProbe:
           httpGet:
@@ -43,6 +63,7 @@ spec:
               value: Awesome
           initialDelaySeconds: 1
           periodSeconds: 1
+
         # Probe to know if container is healthy
         livenessProbe:
           httpGet:
@@ -53,8 +74,27 @@ spec:
               value: Awesome
           initialDelaySeconds: 3
           periodSeconds: 3
+
+        # Resource Limit + Requests
+        # For details, see: 
+        # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+        # https://jackiechen.org/2017/12/12/the-myth-of-memory-requests-and-limits-in-kubernetes/
+        resources:
+          # Sum of requested resources < capacity of node
+          # This prevents over-subscribing on resources and resource shortage
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          # Container cannot exceed these limits
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+
+
+      # Add pod affinity so that all kuard run on same host
+      # This is because the Azure Disk can only be bound to one host at a time
       affinity:
-        podAntiAffinity:
+        podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
@@ -71,6 +111,6 @@ spec:
       - name: kuard-secret
         secret:
           secretName: kuard-secret
-#      - name: kuard-pvc
-#        persistentVolumeClaim:
-#          claimName: kuard
+      - name: kuard-pvc
+        persistentVolumeClaim:
+          claimName: kuard
