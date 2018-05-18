@@ -1,8 +1,11 @@
 # Containers Orchestrator hands-on lab with Kubernetes
 
-## Kubernetes Installation on Azure
+Azure provides 2 main ways of creating and deploying a Kubernetes cluster.
 
-> Note: A number of resources created in this demo have names that must be globally unique (e.g. ACR endpoints). In those cases the commands will include a placeholder value noted within angle brackets <> to signal that a value specific to your environment needs to be provided.
+* Azure Kubernetes Service (AKS)
+* Azure Container Service Engine (ACS-Engine)
+
+This walkthrough will focus on creating an AKS cluster.
 
 ## Outline
 
@@ -15,10 +18,10 @@
 
 ## Details
 
-- You can create a cluster through CLI v2 or the Azure Portal. If you use the portal you will need to have created and provide a SSH key and Service Principal. If you use the command line you can have the SSH key and Service Principal created for you. For this tutorial, we will use the command line.
-- For production deployments you would want to create and managed keys and Service Principals for specific purposes. To quickly create a cluster for demo/development purposes you can use the command line which will auto create:
-  - SSH keys - in your home/.ssh directory
-  - Service Principal - in your home/.azure directory
+* You can create a cluster through CLI v2 or the Azure Portal. If you use the portal you will need to have created and provide a SSH key and Service Principal. If you use the command line you can have the SSH key and Service Principal created for you. For this tutorial, we will use the command line.
+* For production deployments you would want to create and managed keys and Service Principals for specific purposes. To quickly create a cluster for demo/development purposes you can use the command line which will auto create:
+  * SSH keys - in your home/.ssh directory
+  * Service Principal - in your home/.azure directory
 > Note: If you already have ssh keys in your home directory, then you should use those keys on the command line rather then allowing the CLI to create new keys which will overwrite any existing keys in your home/.ssh directory.
 
 The following steps will create the Kubernetes cluster using command line commands:

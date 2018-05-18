@@ -1,6 +1,6 @@
-# Containers Orchestrator hands-on lab with Kubernetes
+# Kubernetes Workshop
 
-Created at Microsoft by Lamia Youseff, [David Read](https://github.com/dave-read), Stas Kondratiev, [Tommy Falgout](https://github.com/lastcoolnameleft)
+This hands-on lab is designed to help build confidence in running Kubernetes concepts.  By the end of this lab, you should feel comfortable running pod, service and ingress resources inside a Kubernetes cluster in Azure.
 
 ## Lab Goals
 
@@ -20,3 +20,12 @@ Created at Microsoft by Lamia Youseff, [David Read](https://github.com/dave-read
 ## Further reading
 
 1. [Designing Distributed Systems by Brendan Burns](https://github.com/brendandburns/designing-distributed-systems-labs)
+
+## Credits
+
+Created at Microsoft:
+
+* [David Read](https://github.com/dave-read)
+* [Tommy Falgout](https://github.com/lastcoolnameleft)
+* Lamia Youseff
+* Stas Kondratiev
