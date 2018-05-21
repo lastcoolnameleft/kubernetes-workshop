@@ -4,7 +4,7 @@ WARNING:  SSH'ing into an agent node is an [anti-pattern](https://en.wikipedia.o
 
 This walkthrough is designed for users managing a Kubernetes cluster who cannot readily SSH to into their agent nodes (e.g. [AKS](https://docs.microsoft.com/en-us/azure/aks/) does not publicly expose the agent nodes for security considerations).
 
-You can follow the steps on the [SSH to AKS cluster nodes](https://docs.microsoft.com/en-us/azure/aks/aks-ssh) walkthrough; however, that requires you to upload your Private SSH key which makes me uncomfortable.
+You can follow the steps on the [SSH to AKS cluster nodes](https://docs.microsoft.com/en-us/azure/aks/aks-ssh) walkthrough; however, that requires you to upload your Private SSH key which I would rather avoid.
 
 ## Assumptions
 
