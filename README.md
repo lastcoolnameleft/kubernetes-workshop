@@ -16,6 +16,7 @@ This hands-on lab is designed to help build confidence in running Kubernetes con
 1. [Create Azure Container Service Repository (ACR)](using-acr.md)
 1. [Enable OMS monitoring of containers](azure-log-analytics.md)
 1. [Create and deploy into Kubernetes Namspaces](k8s-namespaces.md)
+1. [SSH to Host](ssh-to-host.md)
 
 ## Further reading
 
