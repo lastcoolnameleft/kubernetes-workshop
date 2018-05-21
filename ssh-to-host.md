@@ -28,9 +28,9 @@ kubectl run ssh-server --image=corbinu/ssh-server --port=22 --restart=Never
 
 ## Setup port forward
 
-NOTE: Run this in a separate window since it will need to be running for as long as you want the SSH connection
-
 Instead of exposing a service with an IP+Port, we'll take the easy way and use kubectl to port-forward to your localhost.
+
+*NOTE: Run this in a separate window since it will need to be running for as long as you want the SSH connection*
 
 ```shell
 kubectl port-forward ssh-server 2222:22
