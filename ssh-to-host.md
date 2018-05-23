@@ -56,6 +56,8 @@ kubectl get nodes -o json | jq '.items[].status.addresses[].address'
 ssh -J root@127.0.0.1:2222 $USER@$IP
 ```
 
+*NOTE*  If you get "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!" You might need to add `-o StrictHostKeyChecking=no` to the SSH command if you bounce across clusters.  This is because SSH believes that the identity of the host has changed and you need to either remove that entry from your `~/.ssh/known_hosts` or tell it to ignore the host identity.
+
 ## Cleanup
 
 * `kubectl delete pod ssh-server`
