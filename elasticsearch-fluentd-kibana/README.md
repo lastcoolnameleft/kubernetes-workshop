@@ -52,7 +52,7 @@ Install the ingress resource to route all traffic to the new services.  Modify t
 * SERVICE_IP
 
 ```shell
-kubectl create -f ingress/elasticsearch.yaml
+kubectl create -f yaml/elasticsearch.yaml
 ```
 
 ## Check the service
