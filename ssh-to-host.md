@@ -17,6 +17,7 @@ You can follow the steps on the [SSH to AKS cluster nodes](https://docs.microsof
 ## Assumptions
 
 * [The SSH Public key has been installed for your user on the Agent host](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/vmaccess#update-ssh-key)
+* [You have jq installed](https://stedolan.github.io/jq/) Not vital, but makes the last step easier to understand.
 
 ## Install an SSH Server
 
