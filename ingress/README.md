@@ -10,7 +10,7 @@ Before installing the ingress resource, we should create the ingress controller,
 
 ```shell
 INGRESS_CONTROLLER_RELEASE_NAME=${INGRESS_CONTROLLER_RELEASE_NAME=nginx-ingress}
-INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=monitoring}
+INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=default}
 helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE stable/nginx-ingress
 # or if using RBAC
 helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE --set rbac.create=true stable/nginx-ingress
@@ -20,7 +20,7 @@ helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTRO
 ## Validation
 
 ```shell
-INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=monitoring}
+INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=default}
 INGRESS_CONTROLLER_IP=$(kubectl get service nginx-ingress-controller -n $INGRESS_CONTROLLER_NAMESPACE -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 until [ $INGRESS_CONTROLLER_IP ]
 do
