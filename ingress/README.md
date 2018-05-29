@@ -4,6 +4,14 @@ In short, ingress resources are ways of defining traffic routing inside Kubernet
 
 For details, on the Kubernetes Ingress resource, see: <https://kubernetes.io/docs/concepts/services-networking/ingress/#what-is-ingress>
 
+## AKS Cluster
+
+If you are using an AKS cluster and created it with "HTTP Application Routing" enabled, then congratulations, you already have an Ingress Controller installed!  You do not need to follow these instructions.
+
+You can see the custom Ingress Controller by running `kubectl get svc addon-http-application-routing-nginx-ingress -n kube-system`
+
+For details, see: https://docs.microsoft.com/en-us/azure/aks/http-application-routing
+
 ## Install Nginx Ingress Controller
 
 Before installing the ingress resource, we should create the ingress controller, which will implement the routes.  For our example, we will use the nginx-ingress helm chart.
