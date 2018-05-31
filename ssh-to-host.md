@@ -4,7 +4,7 @@ WARNING:  SSH'ing into an agent node is an [anti-pattern](https://en.wikipedia.o
 
 ## Overview
 
-This walkthough creates an SSH Server running as a Pod in your Kubernetes cluster and uses it as a jumpbox to the agent nodes.  
+This walkthrough creates an SSH Server running as a Pod in your Kubernetes cluster and uses it as a jumpbox to the agent nodes.  
 
 ## NOTE
 
