@@ -19,7 +19,7 @@ Before installing the ingress resource, we should create the ingress controller,
 ```shell
 INGRESS_CONTROLLER_RELEASE_NAME=${INGRESS_CONTROLLER_RELEASE_NAME=nginx-ingress}
 INGRESS_CONTROLLER_NAMESPACE=${INGRESS_CONTROLLER_NAMESPACE=default}
-helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE stable/nginx-ingress
+helm install stable/nginx-ingress --namespace kube-system --set rbac.create=false --set rbac.createRole=false --set rbac.createClusterRole=false
 # or if using RBAC
 helm install --name $INGRESS_CONTROLLER_RELEASE_NAME --namespace $INGRESS_CONTROLLER_NAMESPACE --set rbac.create=true stable/nginx-ingress
 
