@@ -37,7 +37,7 @@ RESOURCE_GROUP=<RESOURCE GROUP VM's ARE IN.  USUALLY DIFFERENT THAN RG ACS SERVI
 # If you do not have a Storage Account already, create one in the same Resource Group as your VM's
 az storage account create -n $STORAGE_ACCOUNT -g $RESOURCE_GROUP -l $REGION --kind Storage --sku Standard_LRS
 
-wget  https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/storage-class.yaml
+wget  https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/storage/azure-file-pvc/storage-class.yaml
 
 sed -ie "s/location: eastus/location: $REGION/" storage-class.yaml
 sed -ie "s/storageAccount: tmfaksstorage/storageAccount: $STORAGE_ACCOUNT/" storage-class.yaml
@@ -56,7 +56,7 @@ Additional details:
 <https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims>
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/pvc.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/storage/azure-file-pvc/pvc.yaml
 
 kubectl get pvc
 ```
@@ -72,7 +72,7 @@ The Deployment has a Pod with 2 containers (backend-writer and frontend-webserve
 The backend writer container writes a new line to a file in the Persistent Volume every second with the date/time + the Pod's hostname.  The frontend webserver container reads that file and serves it via Apache.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/storage/azure-file-pvc/deployment.yaml
 kubectl get pod,deploy,service
 ```
 
@@ -123,7 +123,7 @@ Go back to your curl window to watch the service write two logs every second, on
 To cleanup, delete the Storage Class and the PVC
 
 ```shell
-kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/storage/azure-file-pvc/deployment.yaml
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/storage/azure-file-pvc/deployment.yaml
 ```
 
 ## Summary
