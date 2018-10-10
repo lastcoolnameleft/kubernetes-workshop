@@ -1,0 +1,5 @@
+# Deploy with: helm install stable/nginx-ingress --namespace kube-system --name nginx-ingress --values nginx-ingress-internal-lb-helm-values.yaml
+controller:
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
