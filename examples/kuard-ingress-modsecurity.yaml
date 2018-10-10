@@ -1,0 +1,70 @@
+# Assumes ingress controller is already running
+# Make sure to replace IP of Ingress Controller Service
+# Inspired by https://karlstoney.com/2018/02/23/nginx-ingress-modsecurity-and-secchatops/
+# Validate ConfigMap data:
+#   kubectl describe configmap -n kube-system nginx-ingress-controller
+#   ...
+#   enable-modsecurity:
+#   ----
+#   true
+#   enable-owasp-modsecurity-crs:
+#   ----
+#   true
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kuard
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - name: kuard
+        image: gcr.io/kuar-demo/kuard-amd64:1
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuard
+  labels:
+    name: kuard
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: kuard
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kuard
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      modsecurity_rules '
+        SecRuleEngine On
+        SecAuditLog /var/log/modsec_audit.log
+        SecAuditLogParts ABCIJDEFHZ
+        SecAuditEngine RelevantOnly
+        SecRuleRemoveById 932140
+      ';
+spec:
+  rules:
+  - host: kuard.<IP of Ingress Controller Service>.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kuard
+          servicePort: 80
+
