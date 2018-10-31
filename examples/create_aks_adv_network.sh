@@ -22,6 +22,7 @@ DNS_NAME_PREFIX=$AKS_RESOURCE_NAME
 AKS_NODE_COUNT=2
 AKS_NODE_VM_SIZE=Standard_DS2_v2
 AKS_POD_CIDR=$VNET_SUBNET_PREFIX
+AKS_MAX_PODS=20
 
 AKS_SERVICE_CIDR=10.1.0.0/24          # Must be outside of Vnet Address space
 AKS_DNS_SERVICE_IP=10.1.1.5           # Must be inside the AKS Service CIDR
@@ -32,7 +33,7 @@ az network vnet create -g $VNET_RESOURCE_GROUP -n $VNET_NAME --address-prefix $V
 az network vnet subnet create -g $VNET_RESOURCE_GROUP --vnet-name $VNET_NAME --address-prefix $VNET_ADDRESS_PREFIX -n $SUBNET_NAME
 
 az group create -n $AKS_RESOURCE_GROUP -l $LOCATION
-az aks create --resource-group $AKS_RESOURCE_GROUP --name $AKS_RESOURCE_GROUP --location $LOCATION --max-pods '20' --admin-username $ADMIN_USERNAME --kubernetes-version $KUBERNETES_VERSION --network-plugin $AKS_NETWORK_PLUGIN --dns-name-prefix $DNS_NAME_PREFIX --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE --vnet-subnet-id $VNET_SUBNET_ID --service-cidr $AKS_SERVICE_CIDR --dns-service-ip $AKS_DNS_SERVICE_IP --docker-bridge-address $AKS_DNS_BRIDGE_ADDRESS --enable-addons 'http_application_routing' --ssh-key-value ~/.ssh/id_rsa.pub --service-principal=$SERVICE_PRINCIPAL --client-secret=$SERVICE_PRINCIPAL_PASSWORD
+az aks create --resource-group $AKS_RESOURCE_GROUP --name $AKS_RESOURCE_GROUP --location $LOCATION --max-pods $AKS_MAX_PODS --admin-username $ADMIN_USERNAME --kubernetes-version $KUBERNETES_VERSION --network-plugin $AKS_NETWORK_PLUGIN --dns-name-prefix $DNS_NAME_PREFIX --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE --vnet-subnet-id $VNET_SUBNET_ID --service-cidr $AKS_SERVICE_CIDR --dns-service-ip $AKS_DNS_SERVICE_IP --docker-bridge-address $AKS_DNS_BRIDGE_ADDRESS --enable-addons 'http_application_routing' --ssh-key-value ~/.ssh/id_rsa.pub --service-principal=$SERVICE_PRINCIPAL --client-secret=$SERVICE_PRINCIPAL_PASSWORD
 az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_RESOURCE_GROUP
 
 # Cleanup
