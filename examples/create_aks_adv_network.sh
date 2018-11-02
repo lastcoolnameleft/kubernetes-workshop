@@ -25,7 +25,7 @@ AKS_POD_CIDR=$VNET_SUBNET_PREFIX
 AKS_MAX_PODS=20
 
 AKS_SERVICE_CIDR=10.1.0.0/24          # Must be outside of Vnet Address space
-AKS_DNS_SERVICE_IP=10.1.1.5           # Must be inside the AKS Service CIDR
+AKS_DNS_SERVICE_IP=10.1.0.5           # Must be inside the AKS Service CIDR
 AKS_DNS_BRIDGE_ADDRESS=172.17.0.1/16  # Must be outside of the Vnet Address space
 
 az group create -n $VNET_RESOURCE_GROUP -l $LOCATION
