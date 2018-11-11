@@ -1,0 +1,6 @@
+kubectl run ssh-server --image=corbinu/ssh-server --port=22 --restart=Never
+kubectl port-forward ssh-server 2222:22
+cat ~/.ssh/id_rsa.pub | kubectl exec -i ssh-server -- /bin/bash -c "cat >> /root/.ssh/authorized_keys"
+kubectl get nodes -o json | jq '.items[].status.addresses[].address'
+IP=$(kubectl get nodes -o json | jq '.items[0].status.addresses[0].address' -r)
+ssh -J root@127.0.0.1:2222 $USER@$IP
