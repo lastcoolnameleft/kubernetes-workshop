@@ -153,10 +153,6 @@ kubens nginx-example
 kubectl get deploy
 # Once the deployment has 1 AVAILABLE, then you can proceed to the next step
 
-# TODO:  We can delete this, right?
-# add persistentVolumeReclaimPolicy: Retain
-#kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
-
 # Curl out to the service a few times to create logs
 kubectl get svc my-nginx
 # Once the EXTERNAL-IP is no longer set to <pending>, you can proceed to the next step
@@ -193,7 +189,7 @@ Backup request "nginx-backup" submitted successfully.
 Run `ark backup describe nginx-backup` or `ark backup logs nginx-backup` for more details.
 ```
 
-## Validate the backup
+## Validate the backup was created successfully
 
 ```shell
 ark backup describe nginx-backup
@@ -218,6 +214,12 @@ Validate updates in Azure:
 
 ```shell
 az snapshot list -g $ARK_RG
+
+# Determine files are being stored
+
+AZURE_STORAGE_KEY=$(az storage account  keys list --account-name $ARK_STORAGE_ACCOUNT -o json | jq '.[0].value' -r)
+AZURE_STORAGE_ACCOUNT=$(az storage account list -g ark_backups -o json | jq '.[0].name' -r)
+az storage blob list -c ark --account-name $AZURE_STORAGE_ACCOUNT --account-key $AZURE_STORAGE_KEY
 ```
 
 ## Simulate Failover (locally)
@@ -226,22 +228,29 @@ az snapshot list -g $ARK_RG
 kubectl delete namespaces nginx-example
 ```
 
-Restore from backup
+## Restore from Ark backup
 
 ```shell
-# Ensure that the PVC disk is deleted before proceeding. ~5-10 minutes
+# Before proceeding, Ensure that the PVC disk is deleted. ~5-10 minutes
 az disk list -g $AKS_RG_PRI_INFRA
 
+# Perform the actual ark restore
 ark restore create --from-backup nginx-backup
 ```
 
-## Failover Application
+## Validate 
 
-## View Status
+```shell
+# Ark will bring the deployment/pods back online
+kubectl get pods
+
+kubectl exec <nginx-pod-name> cat /var/log/nginx/access.log
+# Should see the same 3 lines from the previous request
+```
 
 ## Notes/Observations
 
-* Process is relatively simple
+* Process is relatively simple.
 
 * When performing a Recovery, Ark says that the Phase is Completed; however, that is only relevant for applying the Kubernetes resources.  For example, if creating a Service of Type=LoadBalancer, Ark will show the recovery as complete, even if the IP address has not been assigned yet.
 
@@ -249,28 +258,12 @@ ark restore create --from-backup nginx-backup
 
 * When restoring the pod/service, the deployment's pod name stayed the same.  Minor unexpected pleasantness.
 
-* When deleting the namespace, it re-created the PVC.  This has caused it to re-create the PV.
-  * I have tried setting the Reclaim Policy to Retain on the PV; however, this caused an error:
-
-PVC:
-
-```shell
-Warning  ClaimMisbound  4m    persistentvolume-controller  Two claims are bound to the same volume, this one is bound incorrectly
-```
-
-POD:
-
-```shell
-Warning  FailedMount            37s (x2 over 2m)  kubelet, aks-nodepool1-36227643-0  Unable to mount volumes for pod "nginx-deployment-7d675cdc9b-9j6kz_nginx-example(5cb3354d-edda-11e8-b787-2e024b385453)": timeout expired waiting for volumes to attach/mount for pod "nginx-example"/"nginx-deployment-7d675cdc9b-9j6kz". list of unattached/unmounted volumes=[nginx-logs]
-```
-
-
 ## Notes
 
 Determine files are being stored
 
 ```shell
-AZURE_STORAGE_KEY=$(az storage account  keys list --account-name ark66e9165c7ad9 -o json | jq '.[0].value' -r)
+AZURE_STORAGE_KEY=$(az storage account  keys list --account-name $ARK_STORAGE_ACCOUNT -o json | jq '.[0].value' -r)
 AZURE_STORAGE_ACCOUNT=$(az storage account list -g ark_backups -o json | jq '.[0].name' -r)
 az storage blob list -c ark --account-name $AZURE_STORAGE_ACCOUNT --account-key $AZURE_STORAGE_KEY
 ```
