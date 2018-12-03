@@ -8,7 +8,7 @@ This demo does the following:
 * Deploy Sample App
 * Failover App
 
-It uses the Azure Ark config as a basis: https://github.com/heptio/ark/blob/master/docs/azure-config.md
+This document is inspired by and enhances the [Azure Ark config](https://github.com/heptio/ark/blob/master/docs/azure-config.md).
 
 ## Setup + Prerequisites
 
@@ -77,14 +77,15 @@ az storage account create \
     --sku Standard_GRS \
     --encryption-services blob \
     --https-only true \
-    --kind BlobStorage \
-    --access-tier Hot
+    --kind StorageV2 \
+    --access-tier Hot \
+    --location $BACKUP_REGION
 
 # Create the blob container
 az storage container create -n ark --public-access off --account-name $ARK_STORAGE_ACCOUNT
 ```
 
-### Deploy Ark
+### Deploy Ark on Primary Cluster
 
 ```shell
 # Deploy Ark Prerequisite
@@ -118,6 +119,7 @@ spec:
     resourceGroup: $ARK_RG
     storageAccount: $ARK_STORAGE_ACCOUNT
 EOF
+
 kubectl apply -f ark-backupstoragelocation.yaml
 
 # Setup Ark Volume Snapshot Location
@@ -168,9 +170,10 @@ curl -s $SERVICE_IP > /dev/null
 curl -s $SERVICE_IP > /dev/null
 curl -s $SERVICE_IP > /dev/null
 
-kubectl get pods
+NGINX_POD=$(kubectl get pods -o json | jq '.items[0].metadata.name' -r)
+kubectl get pod $NGINX_POD
 
-kubectl exec <nginx-pod-name> cat /var/log/nginx/access.log
+kubectl exec $NGINX_POD cat /var/log/nginx/access.log
 # Should see 3 lines, indicating each request
 ```
 
@@ -179,7 +182,7 @@ kubectl exec <nginx-pod-name> cat /var/log/nginx/access.log
 Use the ARK CLI to manually create a backup
 
 ```shell
-ark backup create nginx-backup --include-namespaces nginx-example
+ark backup create --include-namespaces nginx-example nginx-backup
 ```
 
 You should see the following.  **NOTE**:  This does not mean the backup was successful!
@@ -217,35 +220,63 @@ az snapshot list -g $ARK_RG
 
 # Determine files are being stored
 
-AZURE_STORAGE_KEY=$(az storage account  keys list --account-name $ARK_STORAGE_ACCOUNT -o json | jq '.[0].value' -r)
-AZURE_STORAGE_ACCOUNT=$(az storage account list -g ark_backups -o json | jq '.[0].name' -r)
-az storage blob list -c ark --account-name $AZURE_STORAGE_ACCOUNT --account-key $AZURE_STORAGE_KEY
+az storage blob list -c ark --account-name $ARK_STORAGE_ACCOUNT
+# Might need to add --account-key $AZURE_STORAGE_KEY
+# AZURE_STORAGE_KEY=$(az storage account  keys list --account-name $ARK_STORAGE_ACCOUNT -o json | jq '.[0].value' -r)
 ```
 
-## Simulate Failover (locally)
+## Simulate Failure
 
 ```shell
 kubectl delete namespaces nginx-example
 ```
 
-## Restore from Ark backup
+## Restore from Ark backup in same cluster
 
 ```shell
 # Before proceeding, Ensure that the PVC disk is deleted. ~5-10 minutes
-az disk list -g $AKS_RG_PRI_INFRA
+az disk list -g $AKS_RG_PRI_INFRA | grep -v OsDisk
 
 # Perform the actual ark restore
 ark restore create --from-backup nginx-backup
 ```
 
-## Validate 
+## Validate restoration was successful
 
 ```shell
 # Ark will bring the deployment/pods back online
 kubectl get pods
 
-kubectl exec <nginx-pod-name> cat /var/log/nginx/access.log
+kubectl exec $NGINX_POD cat /var/log/nginx/access.log
 # Should see the same 3 lines from the previous request
+```
+
+### Deploy Ark on Backup Cluster
+
+The deployment will be almost the exact same, except we will change the Resource Group
+
+```shell
+# Deploy Ark Prerequisite
+kubectl apply -f https://raw.githubusercontent.com/heptio/ark/master/examples/common/00-prereqs.yaml
+
+# Deploy credentials
+# For simplicity sake, we will re-use the credentials used to create the AKS cluster.
+kubectl create secret generic cloud-credentials \
+    --namespace heptio-ark \
+    --from-literal AZURE_SUBSCRIPTION_ID=${SUBSCRIPTION_ID} \
+    --from-literal AZURE_TENANT_ID=${TENANT_ID} \
+    --from-literal AZURE_CLIENT_ID=${SERVICE_PRINCIPAL} \
+    --from-literal AZURE_CLIENT_SECRET=${SERVICE_PRINCIPAL_PASSWORD} \
+    --from-literal AZURE_RESOURCE_GROUP=${AKS_RG_BAK_INFRA}
+
+# Deploy Ark Core
+kubectl apply -f https://raw.githubusercontent.com/heptio/ark/master/examples/azure/00-ark-deployment.yaml
+
+# Setup Ark Backup Storage Location (Using the same as the primary cluster)
+kubectl apply -f ark-backupstoragelocation.yaml
+
+# Setup Ark Volume Snapshot Location (Using the same as the primary cluster)
+kubectl apply -f ark-volumesnapshotlocation.yaml
 ```
 
 ## Notes/Observations
@@ -258,15 +289,7 @@ kubectl exec <nginx-pod-name> cat /var/log/nginx/access.log
 
 * When restoring the pod/service, the deployment's pod name stayed the same.  Minor unexpected pleasantness.
 
-## Notes
-
-Determine files are being stored
-
-```shell
-AZURE_STORAGE_KEY=$(az storage account  keys list --account-name $ARK_STORAGE_ACCOUNT -o json | jq '.[0].value' -r)
-AZURE_STORAGE_ACCOUNT=$(az storage account list -g ark_backups -o json | jq '.[0].name' -r)
-az storage blob list -c ark --account-name $AZURE_STORAGE_ACCOUNT --account-key $AZURE_STORAGE_KEY
-```
+* The Disk snapshot is in the same region as the source cluster.  This can cause problems if the region goes down
 
 ## Cleanup
 
