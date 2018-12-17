@@ -251,6 +251,8 @@ kubectl exec $NGINX_POD cat /var/log/nginx/access.log
 # Should see the same 3 lines from the previous request
 ```
 
+## Deploy Backup to Azure Paired Region
+
 ### Deploy Ark on Backup Cluster
 
 The deployment will be almost the exact same, except we will change the Resource Group
@@ -278,6 +280,43 @@ kubectl apply -f ark-backupstoragelocation.yaml
 # Setup Ark Volume Snapshot Location (Using the same as the primary cluster)
 kubectl apply -f ark-volumesnapshotlocation.yaml
 ```
+
+## Prepare snapshots for Azure Paired Region
+
+Unfortunately, you cannot create an Azure Disk from a Snapshot in a different region.  The following steps were inspired by: https://michaelcollier.wordpress.com/2017/05/03/copy-managed-images/
+
+```shell
+SNAPSHOT_NAME=$(kubectl get pv -o json | jq -r '.items[0].spec.azureDisk.diskName')
+IMAGE_STORAGE_CONTAINER_NAME=ark-snapshot
+
+# Get the SAS for the snapshot
+snapshotSasUrl=$(az snapshot grant-access -g $ARK_RG -n $SNAPSHOT_NAME --duration-in-seconds 3600 -o tsv)
+ 
+# Setup the target storage account in another region
+targetStorageAccountKey=$(az storage account keys list -g $ARK_RG --account-name $ARK_STORAGE_ACCOUNT --query "[:1].value" -o tsv)
+ 
+az storage container create -n $IMAGE_STORAGE_CONTAINER_NAME --account-name $ARK_STORAGE_ACCOUNT
+ 
+# Copy the snapshot to the target region using the SAS URL
+IMAGE_BLOB_NAME="$SNAPSHOT_NAME-disk.vhd"
+az storage blob copy start --source-uri $snapshotSasUrl --destination-blob $IMAGE_BLOB_NAME --destination-container $IMAGE_STORAGE_CONTAINER_NAME --account-name $ARK_STORAGE_ACCOUNT
+
+# Figure out when the copy is destination-container
+# TODO: Put this in a loop until status is 'success'
+az storage blob show --container-name $IMAGE_STORAGE_CONTAINER_NAME -n $IMAGE_BLOB_NAME --account-name $ARK_STORAGE_ACCOUNT --query "properties.copy.status"
+
+# Get the URI to the blob
+
+BLOB_ENDPOINT=$(az storage account show -g $ARK_RG -n $ARK_STORAGE_ACCOUNT --query "primaryEndpoints.blob" -o tsv)
+AKS_VHD_URI="$BLOB_ENDPOINT$IMAGE_STORAGE_CONTAINER_NAME/$IMAGE_BLOB_NAME"
+
+# Create the snapshot in the target region
+az snapshot revoke-access -g $ARK_RG -n $SNAPSHOT_NAME
+# Might get: Deployment failed. Correlation ID: 49b38f05-88ff-4165-843e-45a0ff8d0fea. The response from long running operation does not contain a body.
+az snapshot delete -g $ARK_RG -n $SNAPSHOT_NAME
+az snapshot create -g $ARK_RG -n $SNAPSHOT_NAME -l $BACKUP_LOCATION --source $AKS_VHD_URI
+```
+
 
 ## Notes/Observations
 
