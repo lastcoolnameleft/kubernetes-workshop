@@ -8,7 +8,7 @@ This expands on the steps described in the following documentation:
 * <https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-containers>
 * <https://hub.kubeapps.com/charts/stable/msoms>
 
-> NOTE:  You do NOT need to do this if you are running an AKS cluster, as this is automatically installed for you.
+> NOTE:  You do NOT need to do this if you are running an AKS cluster, as this is automatically installed for you by default.
 
 ## Steps
 
@@ -23,4 +23,4 @@ LA_KEY=
 helm install --name omsagent --set omsagent.secret.wsid=$WORKSPACE_ID,omsagent.secret.key=$LA_KEY stable/msoms
 ```
 
-If this is a new Log Analytics cluster, it will take a long time (~30 minutes to initialize) and for the logs to propagate.
+If this is a new Log Analytics cluster, it will take a long time (up to 30 minutes to initialize) and for the logs to propagate.
