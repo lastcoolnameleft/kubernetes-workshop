@@ -23,6 +23,7 @@ This walkthrough will focus on creating an AKS cluster.
   * SSH keys - in your home/.ssh directory
   * Service Principal - in your home/.azure directory
 > Note: If you already have ssh keys in your home directory, then you should use those keys on the command line rather then allowing the CLI to create new keys which will overwrite any existing keys in your home/.ssh directory.
+> Note: It is recommended to perform these steps in Bash (Users have experienced issues in PowerShell)
 
 The following steps will create the Kubernetes cluster using command line commands:
 
