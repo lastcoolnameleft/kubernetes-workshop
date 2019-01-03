@@ -4,7 +4,7 @@
 
 Kubernetes provides namespaces as a way to create isolated environments within a cluster (e.g. dev,test,prod)
 
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/k8s-create-namespaces.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/k8s-create-namespaces.yaml>
 
 ```yaml
 apiVersion: v1
@@ -25,7 +25,7 @@ metadata:
 Create a test and prod namespace deployment using the kubectl create command:
 
 ```shell
-kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/k8s-create-namespaces.yaml
+kubectl create -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/k8s-create-namespaces.yaml
 ```
 
 Use the UI or command line to verify the available namespaces now include test and prod:
