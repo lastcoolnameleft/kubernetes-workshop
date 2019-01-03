@@ -8,6 +8,8 @@ This expands on the steps described in the following documentation:
 * <https://docs.microsoft.com/en-us/azure/log-analytics/log-analytics-containers>
 * <https://hub.kubeapps.com/charts/stable/msoms>
 
+> NOTE:  You do NOT need to do this if you are running an AKS cluster, as this is automatically installed for you.
+
 ## Steps
 
 * Go to the Azure portal and create a new "Log Analytics" resource.
