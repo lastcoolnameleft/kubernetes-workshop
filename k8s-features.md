@@ -17,12 +17,12 @@ Kubernetes uses the concept of Pods as a logical abstract to collect containers 
 #### Kubernetes executes containers in `Pods`. A pod containing a simple Hello World container can be specified in YAML as follows
 
 For this next section, we will use this K8S Manifest file:
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/hello-world.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/hello-world.yaml>
 
 #### This pod can be created using the create command
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/hello-world.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/hello-world.yaml
 ```
 
 Results:
@@ -40,12 +40,12 @@ kubectl get pods --show-all
 #### Let us now start a new pod with two containers. For example, the following configuration file creates two containers: a redis key-value store image, and a nginx frontend image
 
 For this next section, we will use this K8S Manifest file:
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/pod-sample.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/pod-sample.yaml>
 
 Create the the pod:
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/pod-sample.yaml
 ```
 
 ### Placing Pods on Various Kubernetes Nodes
@@ -73,12 +73,12 @@ kubectl label $NODE_NAME disktype=ssd
 
 #### You can then specify the label in your pod config file as a nodeSelector section
 
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/pod-sample-2.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/pod-sample-2.yaml>
 
 Create the pod
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample-2.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/pod-sample-2.yaml
 ```
 
 ```shell
@@ -103,12 +103,12 @@ For example, your pods get re-created on a node after disruptive maintenance suc
 
 ### Create an example of Replication Set and Deployment config. It runs 3 copies of the nginx web server
 
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/nginx-deployment.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/nginx-deployment.yaml>
 
 #### Run the new pod
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/nginx-deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/nginx-deployment.yaml
 ```
 
 Results:
@@ -141,12 +141,12 @@ This example demonstrates the usage of Kubernetes to perform a rolling update fo
 
 ### In the previous deployment, we used nginx:1.7.9.  Now we want to upgrade to 1.8
 
-<https://github.com/lastcoolnameleft/workshops/blob/master/kubernetes/yaml/deployment-nginx-update.yaml>
+<https://github.com/lastcoolnameleft/kubernetes-workshop/blob/master/yaml/deployment-nginx-update.yaml>
 
 #### To update to container image to ngnix 1.9.1, you can use kubectl rolling-update --image to specify the new image
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/deployment-nginx-update.yaml
+kubectl apply -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/deployment-nginx-update.yaml
 ```
 
 Results:
@@ -171,9 +171,9 @@ For more exercises and info on Kubernetes, the Kubernetes website has a wealth o
 ## Cleanup
 
 ```shell
-kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/hello-world.yaml
-kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample.yaml
-kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/pod-sample-2.yaml
-kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/workshops/master/kubernetes/yaml/nginx-deployment.yaml
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/hello-world.yaml
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/pod-sample.yaml
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/pod-sample-2.yaml
+kubectl delete -f https://raw.githubusercontent.com/lastcoolnameleft/kubernetes-workshop/master/yaml/nginx-deployment.yaml
 kubectl label $NODE_NAME disktype-
 ```
