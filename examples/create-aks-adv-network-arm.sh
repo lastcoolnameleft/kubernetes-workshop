@@ -1,3 +1,5 @@
+# From https://github.com/Azure/azure-quickstart-templates/tree/master/101-aks-advanced-networking
+
 # Fill these in
 SUBSCRIPTION_ID=
 # az ad sp create-for-rbac --skip-assignment
