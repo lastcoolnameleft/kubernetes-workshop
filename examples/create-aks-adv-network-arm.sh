@@ -2,9 +2,6 @@
 
 # Fill these in
 SUBSCRIPTION_ID=
-# az ad sp create-for-rbac --skip-assignment
-SERVICE_PRINCIPAL=
-SERVICE_PRINCIPAL_PASSWORD=
 
 RESOURCE_BASE=aks-1-11
 VNET_RESOURCE_GROUP=$RESOURCE_BASE-vnet-rg
@@ -32,6 +29,7 @@ AKS_DOCKER_BRIDGE_ADDRESS=172.17.0.1/16  # Must be outside of the Vnet Address s
 
 az ad sp create-for-rbac -n "$RESOURCE_BASE" --skip-assignment
 SERVICE_PRINCIPAL_CLIENT_ID=<result from the az ad sp create>
+SERVICE_PRINCIPAL_PASSWORD=<result from the az ad sp create>
 
 SERVICE_PRINCIPAL_OBJECT_ID=$(az ad sp show --id $SERVICE_PRINCIPAL_CLIENT_ID -o json | jq -r '.objectId')
 
