@@ -44,7 +44,7 @@ az group create --name $RESOURCE_GROUP --location $LOCATION
 ### Create the Kubernetes cluster
 
 ```shell
-az aks create --resource-group $RESOURCE_GROUP --name $RESOURCE_GROUP --node-count 3 --generate-ssh-keys --kubernetes-version "1.11.5"
+az aks create --resource-group $RESOURCE_GROUP --name $RESOURCE_GROUP --node-count 3
 ```
 
 The above command will use ACS to create a new Kubernetes cluster named "my-k8-cluster" within the newly created resource group. The orchestrator-type parameter indicates to ACS that you are creating a kubernetes cluster with a dns parameter and to generate new ssh keys and service principals.
